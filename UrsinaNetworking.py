@@ -19,6 +19,13 @@ HEADERSIZE = 10
 MESSAGE_LENGTH = 8
 BUFFERSIZE = 4096
 
+def ursina_networking_encode_file(Path_):
+    file = open(Path_, "rb")
+    datas = file.read()
+    print("A")
+    file.close()
+    return datas
+
 def ursina_networking_log(Class_, Context_, Message_):
     print(f"[{Class_} / {Context_}] {Message_}")
 
