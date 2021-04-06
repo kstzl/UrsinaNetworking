@@ -15,6 +15,24 @@ from UrsinaNetworking import UrsinaNetworkingClient
 Client = UrsinaNetworkingClient("localhost", 25565)
 ```
 
+## Built-in Server Events
+```python
+def playerConnected(Ply):
+    print(f"{Ply} connected !")
+  
+def playerDisconnected(Ply):
+    print(f"{ply} disconnected !")
+```
+
+## Built-in Client Events
+```python
+def connectionEtablished():
+    print("I'm connected to the server !")
+  
+def connectionError(Reason):
+    print(f"Error ! Reason : {Reason}")
+```
+
 ## Client to Server
 ### Client :
 ```python
