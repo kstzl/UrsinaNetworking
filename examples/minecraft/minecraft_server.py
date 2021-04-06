@@ -19,12 +19,12 @@ def playerDisconnected(NewPlayer):
 
 @Server.event
 def requestSpawnBlock(Player, Position):
-    print(f"{Player} want to destroy a block at {Position} ")
+    print(f"{Player} want to spawn a block at {Position} ")
     Blocks.append(Position)
     Server.broadcast("receiveSpawnBlock", Position)
 
 @Server.event
 def requestBreakBlock(Player, Position):
-    print(f"{Player} want to spawn a block at {Position} ")
+    print(f"{Player} want to break a block at {Position} ")
     Blocks.remove(Position)
     Server.broadcast("receiveBreakBlock", Position)
