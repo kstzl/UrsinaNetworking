@@ -41,10 +41,8 @@ class EasyUrsinaNetworkingServer:
             self.ev.call("playerDisconnected", Ply)
 
         @self.server.event
-        def request_untrack_entity(Ply, Entity):
-            for e in self.entities:
-                if e.id == Entity.id:
-                    self.untrack_entity_by_id(e.id)
+        def request_untrack_entity_by_id(Ply, Id):
+            self.untrack_entity_by_id(Id)
 
         @self.server.event
         def request_track_entity(Ply, EntityData):
@@ -65,11 +63,18 @@ class EasyUrsinaNetworkingServer:
 
     def untrack_entity_by_id(self, EntityId):
         index = 0
+        valid = False
         for ent in self.entities:
             if ent.id == EntityId:
-                del self.entities[index]
                 self.server.broadcast("untrack_entity_receveid", { "id" : index, "copy" : ent})
+                valid = True
+                del self.entities[index]
             index += 1
+
+        if not valid:
+            self.server.broadcast("bad_entity", EntityId)
+            print(f"[EASY NETWORKING] WARNING : ({EntityId}) is not a valid entity !")
+        
 
 class EasyUrsinaNetworkingClient:
     def __init__(self, client):
@@ -102,8 +107,8 @@ class EasyUrsinaNetworkingClient:
         def datas_updated(Datas):
             self.ev.call("entityUpdated", Datas["id"], Datas["new_datas"])
 
-    def untrack_entity(self, Entity):
-        self.client.send_message("request_untrack_entity", Entity)
+    def untrack_entity_by_id(self, Id):
+        self.client.send_message("request_untrack_entity_by_id", Id)
 
     def track_entity(self, Entity):
         self.client.send_message("request_track_entity", Entity)
