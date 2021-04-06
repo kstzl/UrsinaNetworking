@@ -165,9 +165,10 @@ class UrsinaNetworkingServer():
     def get_clients(self):
         return self.clients
         
-    def broadcast(self, Message_, Content_):
+    def broadcast(self, Message_, Content_, IgnoreList = []):
         for Client in self.clients:
-            Client.send_message(Message_, Content_)
+            if not Client in IgnoreList:
+                Client.send_message(Message_, Content_)
 
     def handle(self, Client_):
         while True:
@@ -244,6 +245,9 @@ class UrsinaNetworkingClient():
                         except Exception as e:
                             self.events.call("connectionError", e)
                             ursina_networking_log("UrsinaNetworkingClient", "handle / receive", f"Receive Error : {e}")
+                            break
+                else:
+                    self.events.call("connectionError", self.connection_response)
 
             except Exception as e:
                 self.events.call("connectionError", e)
