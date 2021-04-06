@@ -40,7 +40,6 @@ def ursina_networking_encode_message(Message_):
         ursina_networking_log("UrsinaNetworkingEncodeMessage", "func", e)
     return b""
 
-
 class UrsinaNetworinkDatagramsBuffer():
     def __init__(self):
         self.header = bytes()
