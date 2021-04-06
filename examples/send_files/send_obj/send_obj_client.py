@@ -1,4 +1,5 @@
 from UrsinaNetworking import UrsinaNetworkingClient
+from UrsinaNetworking import ursina_networking_decompress_file
 from ursina.mesh_importer import *
 from ursina.prefabs.first_person_controller import FirstPersonController
 from ursina import *
@@ -26,11 +27,12 @@ for z in range(8):
 player = FirstPersonController()
 
 @Client.event
-def receiveFile(C):
+def receiveFile(Model):
     f = open("received_model.obj", "wb")
-    f.write(C)
+    print(Model)
+    f.write(ursina_networking_decompress_file(Model))
     f.close()
-    Monkey = Entity(model = "received_model.obj", position = (5, 1, 5), scale = 1)
+    Entity(model = "received_model.obj", position = (5, 1, 5), scale = 1)
 
 Client.send_message("requestFile", "Send me the filesss ! ")
 

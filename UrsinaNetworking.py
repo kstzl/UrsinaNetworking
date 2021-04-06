@@ -13,17 +13,20 @@ By K3#4869 and Squiggle#1385
 import socket
 import threading
 import pickle
-import time
+import zlib
 
 HEADERSIZE = 10
 MESSAGE_LENGTH = 8
 BUFFERSIZE = 4096
 
+def ursina_networking_decompress_file(Datas_):
+    return zlib.decompress(Datas_)
+
 def ursina_networking_encode_file(Path_):
     file = open(Path_, "rb")
     datas = file.read()
     file.close()
-    return datas
+    return zlib.compress(datas)
 
 def ursina_networking_log(Class_, Context_, Message_):
     print(f"[{Class_} / {Context_}] {Message_}")
@@ -185,7 +188,7 @@ class UrsinaNetworkingServer():
                 
                 self.network_buffer.datagrams = []
 
-            except:
+            except ConnectionError as e:
                 ClientCopy = self.get_client(Client_)
                 for Client in self.clients:
                     if Client.socket == Client_:
@@ -194,6 +197,9 @@ class UrsinaNetworkingServer():
                 self.events.call("playerDisconnected", ClientCopy)
                 Client_.close()
                 break
+
+            except Exception as e:
+                ursina_networking_log("UrsinaNetworkingServer", "handle", f"unknown error : {e}")
 
     def receive(self):
 
@@ -247,10 +253,12 @@ class UrsinaNetworkingClient():
                             
                             self.network_buffer.datagrams = []
 
-                        except Exception as e:
+                        except ConnectionError as e:
                             self.events.call("connectionError", e)
-                            ursina_networking_log("UrsinaNetworkingClient", "handle / receive", f"Receive Error : {e}")
+                            ursina_networking_log("UrsinaNetworkingClient", "handle", f"connectionError : {e}")
                             break
+                        except Exception as e:
+                            ursina_networking_log("UrsinaNetworkingClient", "handle", f"unknown error : {e}")
                 else:
                     self.events.call("connectionError", self.connection_response)
 
