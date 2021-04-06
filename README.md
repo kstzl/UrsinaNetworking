@@ -1,4 +1,4 @@
-<img src="https://raw.githubusercontent.com/kstzl/UrsinaNetworking/main/UrsinaNetworking_icon.png" width="64">
+<img src="https://raw.githubusercontent.com/kstzl/UrsinaNetworking/main/UrsinaNetworking_banner.png" width="500">
 A high level API for networking with the Ursina Engine
 
 ## Creating a server
