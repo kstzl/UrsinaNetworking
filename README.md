@@ -1,4 +1,4 @@
-# UrsinaNetworking
+![alt text](https://raw.githubusercontent.com/kstzl/UrsinaNetworking/main/UrsinaNetworking_icon.png)
 A high level API for networking with the Ursina Engine
 
 ## Creating a server
