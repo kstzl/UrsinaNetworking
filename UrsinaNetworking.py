@@ -31,9 +31,13 @@ def ursina_networking_encode_file(Path_):
 def ursina_networking_log(Class_, Context_, Message_):
     print(f"[{Class_} / {Context_}] {Message_}")
 
-def ursina_networking_encode_message(Message_):
+def ursina_networking_encode_message(Message_, Content_):
     try:
-        EncodedMessage = pickle.dumps(Message_)
+        Message = {
+            "Message"   :   Message_,
+            "Content"   :   Content_
+        }
+        EncodedMessage = pickle.dumps(Message)
         MessageLength = len(EncodedMessage)
         LengthToBytes = MessageLength.to_bytes(MESSAGE_LENGTH, byteorder = "big")
         FinalMessage = LengthToBytes + EncodedMessage
@@ -127,12 +131,7 @@ class UrsinaNetworkingPlayer():
 
     def send_message(self, Message_, Content_):
         try:
-            NewMsg = {
-                "Message"   :   Message_,
-                "Content"   :   Content_
-            }
-
-            Encoded = ursina_networking_encode_message(NewMsg)
+            Encoded = ursina_networking_encode_message(Message_, Content_)
             self.socket.sendall(Encoded)
             return True
         except Exception as e:
@@ -268,11 +267,7 @@ class UrsinaNetworkingClient():
 
     def send_message(self, Message_, Content_):
         try:
-            NewMsg = {
-                "Message"   :   Message_,
-                "Content"   :   Content_
-            }
-            encoded_message = ursina_networking_encode_message(NewMsg)
+            encoded_message = ursina_networking_encode_message(Message_, Content_)
             self.client.sendall(encoded_message)
             return True
         except Exception as e:
