@@ -21,7 +21,7 @@ def playerConnected(Ply):
     print(f"{Ply} connected !")
   
 def playerDisconnected(Ply):
-    print(f"{ply} disconnected !")
+    print(f"{Ply} disconnected !")
 ```
 
 ## Built-in Client Events
