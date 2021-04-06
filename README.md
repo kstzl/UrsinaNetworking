@@ -17,18 +17,22 @@ Client = UrsinaNetworkingClient("localhost", 25565)
 
 ## Built-in Server Events
 ```python
+@Server.event
 def playerConnected(Ply):
     print(f"{Ply} connected !")
-  
+
+@Server.event
 def playerDisconnected(Ply):
     print(f"{Ply} disconnected !")
 ```
 
 ## Built-in Client Events
 ```python
+@Client.event
 def connectionEtablished():
     print("I'm connected to the server !")
   
+@Client.event
 def connectionError(Reason):
     print(f"Error ! Reason : {Reason}")
 ```
