@@ -1,5 +1,5 @@
 # UrsinaNetworking
-A High level api to do networking with the Ursina Engine
+A high level API for networking with the Ursina Engine
 
 ## Creating a server
 ```python
@@ -13,4 +13,50 @@ Server = UrsinaNetworkingServer("localhost", 25565)
 from UrsinaNetworking import UrsinaNetworkingClient
 
 Client = UrsinaNetworkingClient("localhost", 25565)
+```
+
+## Client to Server
+### Client :
+```python
+from UrsinaNetworking import UrsinaNetworkingClient
+
+Client = UrsinaNetworkingClient("localhost", 25565)
+Client.send_message("HelloFromClient", "blabla")
+```
+### Server :
+```python
+from UrsinaNetworking import UrsinaNetworkingServer
+
+Server = UrsinaNetworkingServer("localhost", 25565)
+
+@Server.event
+def HelloFromClient(Sender, Content):
+    print(f"{Sender} said : {Content}")
+```
+
+## Server to Client
+### Server :
+```python
+from UrsinaNetworking import UrsinaNetworkingServer
+
+Server = UrsinaNetworkingClient("localhost", 25565)
+Server.send_message("HelloFromServer", "blabla")
+```
+### Client :
+```python
+from UrsinaNetworking import UrsinaNetworkingClient
+
+Client = UrsinaNetworkingClient("localhost", 25565)
+
+@Client.event
+def HelloFromServer(Content):
+    print(f"Server said : {Content}")
+```
+
+## Broadcasting
+```python
+from UrsinaNetworking import UrsinaNetworkingServer
+
+Server = UrsinaNetworkingClient("localhost", 25565)
+Server.broadcast("HelloFromServer", "blabla")
 ```
