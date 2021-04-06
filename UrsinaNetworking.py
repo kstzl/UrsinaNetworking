@@ -22,7 +22,6 @@ BUFFERSIZE = 4096
 def ursina_networking_encode_file(Path_):
     file = open(Path_, "rb")
     datas = file.read()
-    print("A")
     file.close()
     return datas
 
