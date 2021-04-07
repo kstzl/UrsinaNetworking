@@ -1,4 +1,5 @@
 <img src="https://raw.githubusercontent.com/kstzl/UrsinaNetworking/main/UrsinaNetworking_banner.png" width="500">
+
 A high level API for networking with the Ursina Engine
 
 ## Creating a server
@@ -18,22 +19,22 @@ Client = UrsinaNetworkingClient("localhost", 25565)
 ## Built-in Server Events
 ```python
 @Server.event
-def playerConnected(Ply):
-    print(f"{Ply} connected !")
+def onClientConnected(Client):
+    print(f"{Client} connected !")
 
 @Server.event
-def playerDisconnected(Ply):
-    print(f"{Ply} disconnected !")
+def onClientDisconnected(Client):
+    print(f"{Client} disconnected !")
 ```
 
 ## Built-in Client Events
 ```python
 @Client.event
-def connectionEtablished():
+def onConnectionEtablished():
     print("I'm connected to the server !")
   
 @Client.event
-def connectionError(Reason):
+def onConnectionError(Reason):
     print(f"Error ! Reason : {Reason}")
 ```
 
@@ -43,7 +44,13 @@ def connectionError(Reason):
 from UrsinaNetworking import UrsinaNetworkingClient
 
 Client = UrsinaNetworkingClient("localhost", 25565)
-Client.send_message("HelloFromClient", "blabla")
+
+@Client.event
+def onConnectionEtablished():
+    Client.send_message("HelloFromClient", "Hello, how are you ?")
+
+while True:
+    Client.process_net_events()
 ```
 ### Server :
 ```python
@@ -52,8 +59,11 @@ from UrsinaNetworking import UrsinaNetworkingServer
 Server = UrsinaNetworkingServer("localhost", 25565)
 
 @Server.event
-def HelloFromClient(Sender, Content):
-    print(f"{Sender} said : {Content}")
+def HelloFromClient(Client, Content):
+    print(f"{Client} says : {Content}")
+
+while True:
+    Server.process_net_events()
 ```
 
 ## Server to Client
@@ -61,8 +71,14 @@ def HelloFromClient(Sender, Content):
 ```python
 from UrsinaNetworking import UrsinaNetworkingServer
 
-Server = UrsinaNetworkingClient("localhost", 25565)
-Server.send_message("HelloFromServer", "blabla")
+Server = UrsinaNetworkingServer("localhost", 25565)
+
+@Server.event
+def onClientConnected(Client):
+    Client.send_message("HelloFromServer", f"Hello {Client} how are you ?! :D")
+
+while True:
+    Server.process_net_events()
 ```
 ### Client :
 ```python
@@ -72,7 +88,10 @@ Client = UrsinaNetworkingClient("localhost", 25565)
 
 @Client.event
 def HelloFromServer(Content):
-    print(f"Server said : {Content}")
+    print(f"Server says : {Content}")
+    
+while True:
+    Client.process_net_events()
 ```
 
 ## Broadcasting

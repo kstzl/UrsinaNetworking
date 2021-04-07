@@ -46,8 +46,6 @@ def ursina_networking_log(Class_, Context_, Message_):
 
     print(f"[{Class_} / {Context_}] {Message_}")
 
-#This function also check if the message name is reserved.
-#not now lol
 def ursina_networking_encode_message(Message_, Content_):
 
     try:
@@ -80,8 +78,6 @@ class UrsinaNetworkingEvents():
             try:
                 if Func in self.event_table:
                     self.event_table[ Func ]( *Args )
-                else:
-                    print(f"unknown event {Func}")
             except:
                 ursina_networking_log("UrsinaNetworkingEvents", "process_net_events", f"Unable to correctly call '{Func}', maybe you're missing some arguments ?")
                 ursina_networking_log("UrsinaNetworkingEvents", "process_net_events", f"Argument(s) to have : { Args }")
@@ -185,16 +181,17 @@ class UrsinaNetworkingServer():
 
     def __init__(self, Ip_, Port_):
 
+        self.events = UrsinaNetworkingEvents()
+        self.network_buffer = UrsinaNetworinkDatagramsBuffer()
+        self.event = self.events.event
+        self.clients = []
+
         try:
             self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.server.bind((Ip_, Port_))
             self.server.listen()
-            self.clients = []
             self.receiveThread = threading.Thread(target = self.receive)
             self.receiveThread.start()
-            self.events = UrsinaNetworkingEvents()
-            self.network_buffer = UrsinaNetworinkDatagramsBuffer()
-            self.event = self.events.event
 
             ursina_networking_log("UrsinaNetworkingServer", "__init__", "Server started !")
             ursina_networking_log("UrsinaNetworkingServer", "__init__", f"Ip   :   {Ip_}")
