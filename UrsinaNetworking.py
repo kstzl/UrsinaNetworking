@@ -9,7 +9,7 @@
                                                                                |___/ 
 By K3#4869 and Squiggle#1385
 
-Version 1.0.0
+Version 1.0.5
 
 """
 
@@ -22,25 +22,34 @@ HEADERSIZE = 10
 MESSAGE_LENGTH = 8
 BUFFERSIZE = 4096
 
-BUILTIN_EVENT_CONNECTION_ETABLISHED = "connectionEtablished"
-BUILTIN_EVENT_CONNECTION_ERROR      = "connectionError"
+BUILTIN_EVENT_CONNECTION_ETABLISHED = "onConnectionEtablished"
+BUILTIN_EVENT_CONNECTION_ERROR      = "onConnectionError"
 
-BUILTIN_EVENT_CLIENT_CONNECTED      = "clientConnected"
-BUILTIN_EVENT_CLIENT_DISCONNECTED   = "clientDisconnected"
+BUILTIN_EVENT_CLIENT_CONNECTED      = "onClientConnected"
+BUILTIN_EVENT_CLIENT_DISCONNECTED   = "onClientDisconnected"
+
+STATE_HEADER    = "STATE_HEADER"
+STATE_PAYLOAD   = "STATE_PAYLOAD"
 
 def ursina_networking_decompress_file(Datas_):
+
     return zlib.decompress(Datas_)
 
 def ursina_networking_encode_file(Path_):
+
     file = open(Path_, "rb")
     datas = file.read()
     file.close()
     return zlib.compress(datas)
 
 def ursina_networking_log(Class_, Context_, Message_):
+
     print(f"[{Class_} / {Context_}] {Message_}")
 
+#This function also check if the message name is reserved.
+#not now lol
 def ursina_networking_encode_message(Message_, Content_):
+
     try:
         Message = {
             "Message"   :   Message_,
@@ -55,7 +64,47 @@ def ursina_networking_encode_message(Message_, Content_):
         ursina_networking_log("ursina_networking_encode_message", "func", e)
     return b""
 
+class UrsinaNetworkingEvents():
+
+    def __init__(self):
+        self.events = []
+        self.event_table = {}
+
+    def call(self, name, *args):
+        self.events.append((name, args))
+
+    def process_net_events(self):
+        for event in self.events:
+            Func = event[0]
+            Args = event[1]
+            try:
+                if Func in self.event_table:
+                    self.event_table[ Func ]( *Args )
+                else:
+                    print(f"unknown event {Func}")
+            except:
+                ursina_networking_log("UrsinaNetworkingEvents", "process_net_events", f"Unable to correctly call '{Func}', maybe you're missing some arguments ?")
+                ursina_networking_log("UrsinaNetworkingEvents", "process_net_events", f"Argument(s) to have : { Args }")
+        self.events.clear()
+
+    def event(self, func):
+        self.event_table[func.__name__] = func
+        
+class OLD_UrsinaNetworkingEvents():
+
+    def __init__(self):
+        self.handlers = {}
+
+    def call(self, type, *args):
+        if type in self.handlers:
+            for h in self.handlers[type]:
+                h(*args)
+
+    def event(self, func):
+        self.handlers[func.__name__] = [func]
+        
 class UrsinaNetworinkDatagramsBuffer():
+
     def __init__(self):
         self.header = bytes()
         self.payload = bytes()
@@ -64,9 +113,7 @@ class UrsinaNetworinkDatagramsBuffer():
         self.payload_length = 0
         self.receive_all = False
         self.datagrams = []
-        self.STATE_HEADER = "STATE_HEADER"
-        self.STATE_PAYLOAD = "STATE_PAYLOAD"
-        self.state = self.STATE_HEADER
+        self.state = STATE_HEADER
 
     def receive_datagrams(self, client_):
 
@@ -76,7 +123,7 @@ class UrsinaNetworinkDatagramsBuffer():
 
             self.state_changed = False
 
-            if self.state == self.STATE_HEADER:
+            if self.state == STATE_HEADER:
 
                 if len(self.buf) >= MESSAGE_LENGTH:
 
@@ -86,10 +133,10 @@ class UrsinaNetworinkDatagramsBuffer():
 
                     self.payload_length = int.from_bytes(self.header, byteorder = "big", signed = False)
 
-                    self.state = self.STATE_PAYLOAD
+                    self.state = STATE_PAYLOAD
                     self.state_changed = True
 
-            elif self.state == self.STATE_PAYLOAD:
+            elif self.state == STATE_PAYLOAD:
 
                 if len(self.buf) >= self.payload_length:
 
@@ -97,7 +144,7 @@ class UrsinaNetworinkDatagramsBuffer():
 
                     del self.buf[:self.payload_length]
 
-                    self.state = self.STATE_HEADER
+                    self.state = STATE_HEADER
                     self.state_changed = True
                     self.receive_all = True
                     self.pickled_datas = pickle.loads(self.payload)
@@ -112,19 +159,6 @@ class UrsinaNetworinkDatagramsBuffer():
             return True
         else:
             return False
-
-class UrsinaNetworkingEvents():
-
-    def __init__(self):
-        self.handlers = {}
-
-    def call(self, type, *args):
-        if type in self.handlers:
-            for h in self.handlers[type]:
-                h(*args)
-
-    def event(self, func):
-        self.handlers[func.__name__] = [func]
 
 class UrsinaNetworkingConnectedClient():
 
@@ -169,6 +203,9 @@ class UrsinaNetworkingServer():
         except Exception as e:
             ursina_networking_log("UrsinaNetworkingServer", "__init__", f"Cannot create the server : {e}")
 
+    def process_net_events(self):
+        self.events.process_net_events()
+        
     def get_client_id(self, Client_):
         for Client in self.clients:
             if Client.socket == Client_:
@@ -247,6 +284,9 @@ class UrsinaNetworkingClient():
             except Exception as e:
                 ursina_networking_log("UrsinaNetworkingClient", "__init__", f"Cannot connect to the server : {e}")
 
+    def process_net_events(self):
+        self.events.process_net_events()
+
     def handle(self, Ip_, Port_):
             try:
                 self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -255,6 +295,7 @@ class UrsinaNetworkingClient():
                 if self.connection_response == 0:
                     self.connected = True 
                     self.events.call(BUILTIN_EVENT_CONNECTION_ETABLISHED)
+
                     ursina_networking_log("UrsinaNetworkingClient", "handle", "Client connected successfully !")
 
                     while True:
