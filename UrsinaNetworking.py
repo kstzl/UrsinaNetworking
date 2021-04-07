@@ -217,6 +217,7 @@ class UrsinaNetworkingServer():
 
             except Exception as e:
                 ursina_networking_log("UrsinaNetworkingServer", "handle", f"unknown error : {e}")
+                break
 
     def receive(self):
         
@@ -273,6 +274,7 @@ class UrsinaNetworkingClient():
                             break
                         except Exception as e:
                             ursina_networking_log("UrsinaNetworkingClient", "handle", f"unknown error : {e}")
+                            break
                 else:
                     self.events.call("connectionError", self.connection_response)
 
