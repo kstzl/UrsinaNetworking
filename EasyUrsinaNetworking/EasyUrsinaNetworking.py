@@ -29,9 +29,9 @@ class EasyUrsinaNetworkingServer:
         self.event = self.ev.event
 
         @self.server.event
-        def playerConnected(Ply):
+        def clientConnected(Ply):
             Ply.send_message("get_all_entities", self.entities)
-            self.ev.call("playerConnected", Ply)
+            self.ev.call("clientConnected", Ply)
             Ply.send_message("first_from_server", len(self.entities) - 1)
             print(f"[EASY NETWORKING] {Ply} connected ! Sending all entities ... ({self.entities})")
 

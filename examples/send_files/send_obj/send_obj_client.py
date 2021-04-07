@@ -34,6 +34,8 @@ def receiveFile(Model):
     f.close()
     Entity(model = "received_model.obj", position = (5, 1, 5), scale = 1)
 
-Client.send_message("requestFile", "Send me the filesss ! ")
+@Client.event
+def connectionEtablished():
+    Client.send_message("requestFile", "Send me the filesss ! ")
 
 app.run()

@@ -9,11 +9,11 @@ EasyNetworking = EasyUrsinaNetworkingServer(Server)
 print(EasyNetworking.entities)
 
 @EasyNetworking.event
-def playerConnected(Ply):
+def clientConnected(Ply):
     EasyNetworking.track_entity({ "Type" : "Player", "Id" : Ply.id, "Pos" : Vec3(0, 0, 0), "Rot" : Vec3(0, 0, 0) })
 
 @EasyNetworking.event
-def playerDisconnected(Ply):
+def clientDisconnected(Ply):
     for e in EasyNetworking.entities:
         if e.id == Ply.id:
             EasyNetworking.untrack_entity_by_id(e.id)

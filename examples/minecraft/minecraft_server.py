@@ -9,12 +9,12 @@ for z in range(8):
         Blocks.append((x,0,z))
 
 @Server.event
-def playerConnected(NewPlayer):
+def clientConnected(NewPlayer):
     print(f"{NewPlayer} connected ! {Blocks}")
     NewPlayer.send_message("getBlocks", Blocks)
 
 @Server.event
-def playerDisconnected(NewPlayer):
+def clientDisconnected(NewPlayer):
     print(f"{NewPlayer} disconnected ! ")
 
 @Server.event

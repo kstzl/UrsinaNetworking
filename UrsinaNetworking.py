@@ -8,6 +8,9 @@
                                                                                 __/ |
                                                                                |___/ 
 By K3#4869 and Squiggle#1385
+
+Version 1.0.0
+
 """
 
 import socket
@@ -18,6 +21,12 @@ import zlib
 HEADERSIZE = 10
 MESSAGE_LENGTH = 8
 BUFFERSIZE = 4096
+
+BUILTIN_EVENT_CONNECTION_ETABLISHED = "connectionEtablished"
+BUILTIN_EVENT_CONNECTION_ERROR      = "connectionError"
+
+BUILTIN_EVENT_CLIENT_CONNECTED      = "clientConnected"
+BUILTIN_EVENT_CLIENT_DISCONNECTED   = "clientDisconnected"
 
 def ursina_networking_decompress_file(Datas_):
     return zlib.decompress(Datas_)
@@ -43,7 +52,7 @@ def ursina_networking_encode_message(Message_, Content_):
         FinalMessage = LengthToBytes + EncodedMessage
         return FinalMessage
     except Exception as e:
-        ursina_networking_log("UrsinaNetworkingEncodeMessage", "func", e)
+        ursina_networking_log("ursina_networking_encode_message", "func", e)
     return b""
 
 class UrsinaNetworinkDatagramsBuffer():
@@ -117,13 +126,13 @@ class UrsinaNetworkingEvents():
     def event(self, func):
         self.handlers[func.__name__] = [func]
 
-class UrsinaNetworkingPlayer():
+class UrsinaNetworkingConnectedClient():
 
     def __init__(self, socket, address, id):
         self.socket = socket
         self.address = address
         self.id = id
-        self.name = f"Player {id}"
+        self.name = f"Client {id}"
         self.datas = {}
 
     def __repr__(self):
@@ -135,21 +144,30 @@ class UrsinaNetworkingPlayer():
             self.socket.sendall(Encoded)
             return True
         except Exception as e:
-            ursina_networking_log("UrsinaNetworkingPlayer", "send_message", e)
+            ursina_networking_log("UrsinaNetworkingConnectedClient", "send_message", e)
             return False
 
 class UrsinaNetworkingServer():
 
     def __init__(self, Ip_, Port_):
-        self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server.bind((Ip_, Port_))
-        self.server.listen()
-        self.clients = []
-        self.receiveThread = threading.Thread(target = self.receive)
-        self.receiveThread.start()
-        self.events = UrsinaNetworkingEvents()
-        self.network_buffer = UrsinaNetworinkDatagramsBuffer()
-        self.event = self.events.event
+
+        try:
+            self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.server.bind((Ip_, Port_))
+            self.server.listen()
+            self.clients = []
+            self.receiveThread = threading.Thread(target = self.receive)
+            self.receiveThread.start()
+            self.events = UrsinaNetworkingEvents()
+            self.network_buffer = UrsinaNetworinkDatagramsBuffer()
+            self.event = self.events.event
+
+            ursina_networking_log("UrsinaNetworkingServer", "__init__", "Server started !")
+            ursina_networking_log("UrsinaNetworkingServer", "__init__", f"Ip   :   {Ip_}")
+            ursina_networking_log("UrsinaNetworkingServer", "__init__", f"Port :   {Port_}")
+
+        except Exception as e:
+            ursina_networking_log("UrsinaNetworkingServer", "__init__", f"Cannot create the server : {e}")
 
     def get_client_id(self, Client_):
         for Client in self.clients:
@@ -193,7 +211,7 @@ class UrsinaNetworkingServer():
                     if Client.socket == Client_:
                         self.clients.remove(Client)
                         break
-                self.events.call("playerDisconnected", ClientCopy)
+                self.events.call(BUILTIN_EVENT_CLIENT_DISCONNECTED, ClientCopy)
                 Client_.close()
                 break
 
@@ -201,21 +219,14 @@ class UrsinaNetworkingServer():
                 ursina_networking_log("UrsinaNetworkingServer", "handle", f"unknown error : {e}")
 
     def receive(self):
-
-        host, port = self.server.getsockname()
-
-        ursina_networking_log("UrsinaNetworkingServer", "receive", "Server started !")
-        ursina_networking_log("UrsinaNetworkingServer", "receive", f"Ip   :   {host}")
-        ursina_networking_log("UrsinaNetworkingServer", "receive", f"Port :   {port}")
         
         while True:
 
             client, address = self.server.accept()
 
-            self.clients.append(UrsinaNetworkingPlayer(client, address, len(self.clients)))
-            ply = self.get_client(client)
+            self.clients.append(UrsinaNetworkingConnectedClient(client, address, len(self.clients)))
 
-            self.events.call("playerConnected", ply)
+            self.events.call(BUILTIN_EVENT_CLIENT_CONNECTED, self.get_client(client))
 
             self.handle_thread = threading.Thread(target = self.handle, args = (client,))
             self.handle_thread.start()
@@ -223,13 +234,17 @@ class UrsinaNetworkingServer():
 class UrsinaNetworkingClient():
 
     def __init__(self, Ip_, Port_):
-            self.connected = False
-            self.events = UrsinaNetworkingEvents()
-            self.network_buffer = UrsinaNetworinkDatagramsBuffer()
-            self.event = self.events.event
-            self.connected = False
-            self.handle_thread = threading.Thread(target = self.handle, args = (Ip_, Port_,))
-            self.handle_thread.start()
+
+            try:
+                self.connected = False
+                self.events = UrsinaNetworkingEvents()
+                self.network_buffer = UrsinaNetworinkDatagramsBuffer()
+                self.event = self.events.event
+                self.connected = False
+                self.handle_thread = threading.Thread(target = self.handle, args = (Ip_, Port_,))
+                self.handle_thread.start()
+            except Exception as e:
+                ursina_networking_log("UrsinaNetworkingClient", "__init__", f"Cannot connect to the server : {e}")
 
     def handle(self, Ip_, Port_):
             try:
@@ -238,8 +253,8 @@ class UrsinaNetworkingClient():
 
                 if self.connection_response == 0:
                     self.connected = True 
-                    self.events.call("connectionEtablished")
-                    ursina_networking_log("UrsinaNetworkingClient", "handle_thread", "Client connected successfully !")
+                    self.events.call(BUILTIN_EVENT_CONNECTION_ETABLISHED)
+                    ursina_networking_log("UrsinaNetworkingClient", "handle", "Client connected successfully !")
 
                     while True:
 
@@ -253,7 +268,7 @@ class UrsinaNetworkingClient():
                             self.network_buffer.datagrams = []
 
                         except ConnectionError as e:
-                            self.events.call("connectionError", e)
+                            self.events.call(BUILTIN_EVENT_CONNECTION_ERROR, e)
                             ursina_networking_log("UrsinaNetworkingClient", "handle", f"connectionError : {e}")
                             break
                         except Exception as e:
@@ -267,9 +282,12 @@ class UrsinaNetworkingClient():
 
     def send_message(self, Message_, Content_):
         try:
-            encoded_message = ursina_networking_encode_message(Message_, Content_)
-            self.client.sendall(encoded_message)
-            return True
+            if self.connected:
+                encoded_message = ursina_networking_encode_message(Message_, Content_)
+                self.client.sendall(encoded_message)
+                return True
+            else:
+                ursina_networking_log("UrsinaNetworkingClient", "send_message", f"WARNING : You are trying to send a message but the socket is not connected !")
         except Exception as e:
             ursina_networking_log("UrsinaNetworkingClient", "send_message", e)
             return False
