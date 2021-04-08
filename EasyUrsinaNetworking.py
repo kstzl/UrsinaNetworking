@@ -1,3 +1,17 @@
+"""
+  ______                _    _          _             _   _      _                      _    _             
+ |  ____|              | |  | |        (_)           | \ | |    | |                    | |  (_)            
+ | |__   __ _ ___ _   _| |  | |_ __ ___ _ _ __   __ _|  \| | ___| |___      _____  _ __| | ___ _ __   __ _ 
+ |  __| / _` / __| | | | |  | | '__/ __| | '_ \ / _` | . ` |/ _ \ __\ \ /\ / / _ \| '__| |/ / | '_ \ / _` |
+ | |___| (_| \__ \ |_| | |__| | |  \__ \ | | | | (_| | |\  |  __/ |_ \ V  V / (_) | |  |   <| | | | | (_| |
+ |______\__,_|___/\__, |\____/|_|  |___/_|_| |_|\__,_|_| \_|\___|\__| \_/\_/ \___/|_|  |_|\_\_|_| |_|\__, |
+                   __/ |                                                                              __/ |
+                  |___/                                                                              |___/ 
+By K3#4869
+
+Version 1.0.0
+"""
+
 import UrsinaNetworking
 import threading
 import traceback
@@ -26,6 +40,7 @@ class EasyUrsinaNetworkingEvents():
                         if Func in event_.__name__:
                             event_(*Args)
             except Exception as e:
+                traceback.print_exc()
                 easy_ursina_networking_log("EasyUrsinaNetworkingEvents", "process_net_events", e)
         self.events.clear()
 
@@ -64,8 +79,9 @@ class EasyUrsinaNetworkingServer():
         
         @self.server.event
         def BUILTIN_EVENT_REQUEST_REMOVE_REPLICATED_VARIABLE_BY_NAME(client, name):
-            self.events_manager.events.append((BUILTIN_EVENT_ON_REPLICATED_VARIABLE_REMOVED, [self.replicated_variables[name]] ))
-            self.remove_replicated_variable_by_name(name)
+            if name in self.replicated_variables:
+                self.events_manager.events.append((BUILTIN_EVENT_ON_REPLICATED_VARIABLE_REMOVED, [self.replicated_variables[name]] ))
+                self.remove_replicated_variable_by_name(name)
 
         @self.server.event
         def BUILTIN_EVENT_REQUEST_UPDATE_REPLICATED_VARIABLE_BY_NAME(client, datas):
@@ -73,6 +89,7 @@ class EasyUrsinaNetworkingServer():
             self.events_manager.events.append((BUILTIN_EVENT_ON_REPLICATED_VARIABLE_UPDATED, [datas[1]]))
 
     def create_replicated_variable(self, name, content):
+        if name == "": name = f"unnamed_replicated_variable_{len(self.replicated_variables)}"
         self.replicated_variables[name] = (EasyUrsinaNetworkingReplicatedVariable(name, content))
         self.server.broadcast("BUILTIN_EVENT_SEND_CREATE_REPLICATED_VARIABLE", self.replicated_variables[name])
 
