@@ -1,5 +1,6 @@
 from UrsinaNetworking import UrsinaNetworkingServer
-from EasyUrsinaNetworking import EasyUrsinaNetworkingServer
+from UrsinaNetworking import EasyUrsinaNetworkingServer
+import ursina
 import random
 
 Server = UrsinaNetworkingServer("localhost", 25565)
