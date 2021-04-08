@@ -1,0 +1,1 @@
+A very basic exemple of replicating variables with EasyUrsinaNetworking !

@@ -10,7 +10,6 @@
 By K3#4869 and Squiggle#1385
 
 Version 1.0.5
-
 """
 
 import socket
@@ -235,6 +234,7 @@ class UrsinaNetworkingServer():
                 self.network_buffer.receive_datagrams(Client_)
 
                 for datagram in self.network_buffer.datagrams:
+                    print(f"------> {datagram}")
                     self.events_manager.push_event(datagram["Message"], self.get_client(Client_), datagram["Content"])
 
                 self.network_buffer.datagrams = []
