@@ -17,6 +17,7 @@ import socket
 import threading
 import pickle
 import zlib
+import traceback
 
 HEADERSIZE = 10
 MESSAGE_LENGTH = 8
@@ -31,6 +32,10 @@ BUILTIN_EVENT_CLIENT_DISCONNECTED   = "onClientDisconnected"
 STATE_HEADER    = "STATE_HEADER"
 STATE_PAYLOAD   = "STATE_PAYLOAD"
 
+def ursina_networking_log(Class_, Context_, Message_):
+
+    print(f"[{Class_} / {Context_}] {Message_}")
+
 def ursina_networking_decompress_file(Datas_):
 
     return zlib.decompress(Datas_)
@@ -41,10 +46,6 @@ def ursina_networking_encode_file(Path_):
     datas = file.read()
     file.close()
     return zlib.compress(datas)
-
-def ursina_networking_log(Class_, Context_, Message_):
-
-    print(f"[{Class_} / {Context_}] {Message_}")
 
 def ursina_networking_encode_message(Message_, Content_):
 
@@ -80,8 +81,10 @@ class UrsinaNetworkingEvents():
             Func = event[0]
             Args = event[1]
             try:
-                if Func in self.event_table:
-                    self.event_table[ Func ]( *Args )
+                for events_ in self.event_table:
+                    for event_ in self.event_table[ events_ ]:
+                        if Func in event_.__name__:
+                            event_(*Args)
             except:
                 ursina_networking_log("UrsinaNetworkingEvents", "process_net_events", f"Unable to correctly call '{Func}', maybe you're missing some arguments ?")
                 ursina_networking_log("UrsinaNetworkingEvents", "process_net_events", f"Argument(s) to have : { Args }")
@@ -89,7 +92,10 @@ class UrsinaNetworkingEvents():
         self.lock.release()
 
     def event(self, func):
-        self.event_table[func.__name__] = func
+        if func.__name__ in self.event_table:
+            self.event_table[func.__name__].append(func)
+        else:
+            self.event_table[func.__name__]= [func]
         
 class UrsinaNetworinkDatagramsBuffer():
 
@@ -174,9 +180,9 @@ class UrsinaNetworkingServer():
     def __init__(self, Ip_, Port_):
 
         self.lock = threading.Lock()
-        self.events = UrsinaNetworkingEvents(self.lock)
+        self.events_manager = UrsinaNetworkingEvents(self.lock)
         self.network_buffer = UrsinaNetworinkDatagramsBuffer()
-        self.event = self.events.event
+        self.event = self.events_manager.event
         self.clients = []
         self.lock = threading.Lock()
 
@@ -195,7 +201,7 @@ class UrsinaNetworkingServer():
             ursina_networking_log("UrsinaNetworkingServer", "__init__", f"Cannot create the server : {e}")
 
     def process_net_events(self):
-        self.events.process_net_events()
+        self.events_manager.process_net_events()
         
     def get_client_id(self, Client_):
         for Client in self.clients:
@@ -228,10 +234,8 @@ class UrsinaNetworkingServer():
             try:
                 self.network_buffer.receive_datagrams(Client_)
 
-                self.events.events.extend([(datagram["Message"], datagram["Content"]) for datagram in self.network_buffer.datagrams])
-
                 for datagram in self.network_buffer.datagrams:
-                    self.events.push_event(datagram["Message"], self.get_client(Client_), datagram["Content"])
+                    self.events_manager.push_event(datagram["Message"], self.get_client(Client_), datagram["Content"])
 
                 self.network_buffer.datagrams = []
 
@@ -242,7 +246,7 @@ class UrsinaNetworkingServer():
                         self.clients.remove(Client)
                         break
 
-                self.events.push_event(BUILTIN_EVENT_CLIENT_DISCONNECTED, ClientCopy)
+                self.events_manager.push_event(BUILTIN_EVENT_CLIENT_DISCONNECTED, ClientCopy)
                 Client_.close()
                 break
 
@@ -258,7 +262,7 @@ class UrsinaNetworkingServer():
 
             self.clients.append(UrsinaNetworkingConnectedClient(client, address, len(self.clients)))
 
-            self.events.push_event(BUILTIN_EVENT_CLIENT_CONNECTED, self.get_client(client))
+            self.events_manager.push_event(BUILTIN_EVENT_CLIENT_CONNECTED, self.get_client(client))
 
             self.handle_thread = threading.Thread(target = self.handle, args = (client,))
             self.handle_thread.start()
@@ -270,9 +274,9 @@ class UrsinaNetworkingClient():
             try:
                 self.connected = False
                 self.lock = threading.Lock()
-                self.events = UrsinaNetworkingEvents(self.lock)
+                self.events_manager = UrsinaNetworkingEvents(self.lock)
                 self.network_buffer = UrsinaNetworinkDatagramsBuffer()
-                self.event = self.events.event
+                self.event = self.events_manager.event
                 self.connected = False
                 self.handle_thread = threading.Thread(target = self.handle, args = (Ip_, Port_,))
                 self.handle_thread.start()
@@ -281,7 +285,7 @@ class UrsinaNetworkingClient():
                 ursina_networking_log("UrsinaNetworkingClient", "__init__", f"Cannot connect to the server : {e}")
 
     def process_net_events(self):
-        self.events.process_net_events()
+        self.events_manager.process_net_events()
 
     def handle(self, Ip_, Port_):
             try:
@@ -290,7 +294,7 @@ class UrsinaNetworkingClient():
 
                 if self.connection_response == 0:
                     self.connected = True 
-                    self.events.push_event(BUILTIN_EVENT_CONNECTION_ETABLISHED)
+                    self.events_manager.push_event(BUILTIN_EVENT_CONNECTION_ETABLISHED)
 
                     ursina_networking_log("UrsinaNetworkingClient", "handle", "Client connected successfully !")
 
@@ -299,24 +303,24 @@ class UrsinaNetworkingClient():
                         try:
 
                             self.network_buffer.receive_datagrams(self.client)
-                            
+
                             for datagram in self.network_buffer.datagrams:
-                                self.events.push_event(datagram["Message"], datagram["Content"])
+                                self.events_manager.push_event(datagram["Message"], datagram["Content"])
 
                             self.network_buffer.datagrams = []
 
                         except ConnectionError as e:
-                            self.events.push_event(BUILTIN_EVENT_CONNECTION_ERROR, e)
+                            self.events_manager.push_event(BUILTIN_EVENT_CONNECTION_ERROR, e)
                             ursina_networking_log("UrsinaNetworkingClient", "handle", f"connectionError : {e}")
                             break
                         except Exception as e:
                             ursina_networking_log("UrsinaNetworkingClient", "handle", f"unknown error : {e}")
                             break
                 else:
-                    self.events.push_event("connectionError", self.connection_response)
+                    self.events_manager.push_event(BUILTIN_EVENT_CONNECTION_ERROR, self.connection_response)
 
             except Exception as e:
-                self.events.push_event("connectionError", e)
+                self.events_manager.push_event("connectionError", e)
                 ursina_networking_log("UrsinaNetworkingClient", "handle", f"Connection Error : {e}")
 
     def send_message(self, Message_, Content_):
