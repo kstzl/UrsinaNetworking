@@ -9,7 +9,7 @@
                                                                                |___/
 By K3#4869 and Squiggle#1385
 
-Version 1.0.6
+Version 1.0.7
 """
 
 import socket
