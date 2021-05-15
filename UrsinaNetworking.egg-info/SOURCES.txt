@@ -1,6 +1,12 @@
+MANIFEST.in
 README.md
+__init__.py
 setup.py
 UrsinaNetworking.egg-info/PKG-INFO
 UrsinaNetworking.egg-info/SOURCES.txt
 UrsinaNetworking.egg-info/dependency_links.txt
 UrsinaNetworking.egg-info/top_level.txt
+examples/chat/client.py
+examples/chat/server.py
+examples/minecraft/client.py
+examples/minecraft/server.py
