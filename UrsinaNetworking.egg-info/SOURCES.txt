@@ -1,0 +1,6 @@
+README.md
+setup.py
+UrsinaNetworking.egg-info/PKG-INFO
+UrsinaNetworking.egg-info/SOURCES.txt
+UrsinaNetworking.egg-info/dependency_links.txt
+UrsinaNetworking.egg-info/top_level.txt
