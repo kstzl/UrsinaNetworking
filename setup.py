@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name = "UrsinaNetworking",
-    version = "1.0.5",
+    version = "1.0.6",
     description = "A high level API for networking with the Ursina Engine",
     url = "https://github.com/kstzl/UrsinaNetworking",
     author = "K3#4869 & Squiggle#1385",
