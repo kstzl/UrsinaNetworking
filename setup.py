@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name = "UrsinaNetworking",
@@ -6,5 +6,8 @@ setup(
     description = "A high level API for networking with the Ursina Engine",
     url = "https://github.com/kstzl/UrsinaNetworking",
     author = "K3#4869 & Squiggle#1385",
-    license = "MIT"
+    license = "MIT",
+    keywords = "ursina networking sockets",
+    packages = find_packages(),
+    install_requires = [""]
 )
