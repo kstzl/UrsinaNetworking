@@ -1,17 +1,17 @@
 <img src="https://raw.githubusercontent.com/kstzl/UrsinaNetworking/main/UrsinaNetworking_banner.png" width="500">
 
-A high level API for networking with the Ursina Engine
+A high level API for networking !
 
 ## Creating a server
 ```python
-from UrsinaNetworking import UrsinaNetworkingServer
+from ursinanetworking import *
 
 Server = UrsinaNetworkingServer("localhost", 25565)
 ```
 
 ## Creating a client
 ```python
-from UrsinaNetworking import UrsinaNetworkingClient
+from ursinanetworking import *
 
 Client = UrsinaNetworkingClient("localhost", 25565)
 ```
@@ -32,7 +32,7 @@ def onClientDisconnected(Client):
 @Client.event
 def onConnectionEtablished():
     print("I'm connected to the server !")
-  
+
 @Client.event
 def onConnectionError(Reason):
     print(f"Error ! Reason : {Reason}")
@@ -41,7 +41,7 @@ def onConnectionError(Reason):
 ## Server to Client
 ### Server :
 ```python
-from UrsinaNetworking import UrsinaNetworkingServer
+from ursinanetworking import *
 
 Server = UrsinaNetworkingServer("localhost", 25565)
 
@@ -54,14 +54,14 @@ while True:
 ```
 ### Client :
 ```python
-from UrsinaNetworking import UrsinaNetworkingClient
+from ursinanetworking import *
 
 Client = UrsinaNetworkingClient("localhost", 25565)
 
 @Client.event
 def HelloFromServer(Content):
     print(f"Server says : {Content}")
-    
+
 while True:
     Client.process_net_events()
 ```
@@ -69,7 +69,7 @@ while True:
 ## Client to Server
 ### Client :
 ```python
-from UrsinaNetworking import UrsinaNetworkingClient
+from ursinanetworking import *
 
 Client = UrsinaNetworkingClient("localhost", 25565)
 
@@ -82,7 +82,7 @@ while True:
 ```
 ### Server :
 ```python
-from UrsinaNetworking import UrsinaNetworkingServer
+from ursinanetworking import *
 
 Server = UrsinaNetworkingServer("localhost", 25565)
 
@@ -96,7 +96,7 @@ while True:
 
 ## Broadcasting
 ```python
-from UrsinaNetworking import UrsinaNetworkingServer
+from ursinanetworking import *
 
 Server = UrsinaNetworkingClient("localhost", 25565)
 Server.broadcast("HelloFromServer", "blabla")

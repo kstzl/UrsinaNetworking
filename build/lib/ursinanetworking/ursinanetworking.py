@@ -1,12 +1,12 @@
 """
-  _    _          _             _   _      _                      _    _             
- | |  | |        (_)           | \ | |    | |                    | |  (_)            
- | |  | |_ __ ___ _ _ __   __ _|  \| | ___| |___      _____  _ __| | ___ _ __   __ _ 
+  _    _          _             _   _      _                      _    _
+ | |  | |        (_)           | \ | |    | |                    | |  (_)
+ | |  | |_ __ ___ _ _ __   __ _|  \| | ___| |___      _____  _ __| | ___ _ __   __ _
  | |  | | '__/ __| | '_ \ / _` | . ` |/ _ \ __\ \ /\ / / _ \| '__| |/ / | '_ \ / _` |
  | |__| | |  \__ \ | | | | (_| | |\  |  __/ |_ \ V  V / (_) | |  |   <| | | | | (_| |
   \____/|_|  |___/_|_| |_|\__,_|_| \_|\___|\__| \_/\_/ \___/|_|  |_|\_\_|_| |_|\__, |
                                                                                 __/ |
-                                                                               |___/ 
+                                                                               |___/
 By K3#4869 and Squiggle#1385
 
 Version 1.0.5
@@ -95,7 +95,7 @@ class UrsinaNetworkingEvents():
             self.event_table[func.__name__].append(func)
         else:
             self.event_table[func.__name__]= [func]
-        
+
 class UrsinaNetworinkDatagramsBuffer():
 
     def __init__(self):
@@ -201,7 +201,7 @@ class UrsinaNetworkingServer():
 
     def process_net_events(self):
         self.events_manager.process_net_events()
-        
+
     def get_client_id(self, Client_):
         for Client in self.clients:
             if Client.socket == Client_:
@@ -222,7 +222,7 @@ class UrsinaNetworkingServer():
 
     def get_clients(self):
         return self.clients
-        
+
     def broadcast(self, Message_, Content_, IgnoreList = []):
         for Client in self.clients:
             if not Client in IgnoreList:
@@ -255,7 +255,7 @@ class UrsinaNetworkingServer():
                 break
 
     def receive(self):
-        
+
         while True:
 
             client, address = self.server.accept()
@@ -293,7 +293,7 @@ class UrsinaNetworkingClient():
                 self.connection_response = self.client.connect_ex((Ip_, Port_))
 
                 if self.connection_response == 0:
-                    self.connected = True 
+                    self.connected = True
                     self.events_manager.push_event(BUILTIN_EVENT_CONNECTION_ETABLISHED)
 
                     ursina_networking_log("UrsinaNetworkingClient", "handle", "Client connected successfully !")
@@ -337,14 +337,14 @@ class UrsinaNetworkingClient():
 
 
 """
-  ______                _    _          _             _   _      _                      _    _             
- |  ____|              | |  | |        (_)           | \ | |    | |                    | |  (_)            
- | |__   __ _ ___ _   _| |  | |_ __ ___ _ _ __   __ _|  \| | ___| |___      _____  _ __| | ___ _ __   __ _ 
+  ______                _    _          _             _   _      _                      _    _
+ |  ____|              | |  | |        (_)           | \ | |    | |                    | |  (_)
+ | |__   __ _ ___ _   _| |  | |_ __ ___ _ _ __   __ _|  \| | ___| |___      _____  _ __| | ___ _ __   __ _
  |  __| / _` / __| | | | |  | | '__/ __| | '_ \ / _` | . ` |/ _ \ __\ \ /\ / / _ \| '__| |/ / | '_ \ / _` |
  | |___| (_| \__ \ |_| | |__| | |  \__ \ | | | | (_| | |\  |  __/ |_ \ V  V / (_) | |  |   <| | | | | (_| |
  |______\__,_|___/\__, |\____/|_|  |___/_|_| |_|\__,_|_| \_|\___|\__| \_/\_/ \___/|_|  |_|\_\_|_| |_|\__, |
                    __/ |                                                                              __/ |
-                  |___/                                                                              |___/ 
+                  |___/                                                                              |___/
 By K3#4869
 
 Version 1.0.0
@@ -359,7 +359,7 @@ def easy_ursina_networking_log(Class_, Context_, Message_):
     print(f"[{Class_} / {Context_}] {Message_}")
 
 class EasyUrsinaNetworkingEvents():
-    
+
     def __init__(self):
         self.events = []
         self.event_table = {}
@@ -409,7 +409,7 @@ class EasyUrsinaNetworkingServer():
         def BUILTIN_EVENT_REQUEST_CREATE_REPLICATED_VARIABLE(client, variable):
             self.create_replicated_variable(variable.name, variable.content)
             self.events_manager.events.append((BUILTIN_EVENT_ON_REPLICATED_VARIABLE_CREATED, variable))
-        
+
         @self.server.event
         def BUILTIN_EVENT_REQUEST_REMOVE_REPLICATED_VARIABLE_BY_NAME(client, name):
             if name in self.replicated_variables:
