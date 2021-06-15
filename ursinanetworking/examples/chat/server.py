@@ -1,4 +1,4 @@
-from UrsinaNetworking import UrsinaNetworkingServer
+from ursinanetworking import *
 
 Server = UrsinaNetworkingServer("localhost", 25565)
 

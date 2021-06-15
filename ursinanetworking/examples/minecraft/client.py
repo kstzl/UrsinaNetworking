@@ -1,5 +1,4 @@
-from UrsinaNetworking import UrsinaNetworkingClient
-from UrsinaNetworking import EasyUrsinaNetworkingClient
+from ursinanetworking import *
 
 from ursina.prefabs.first_person_controller import FirstPersonController
 from ursina import *

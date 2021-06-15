@@ -1,5 +1,4 @@
-from UrsinaNetworking import UrsinaNetworkingServer
-from UrsinaNetworking import EasyUrsinaNetworkingServer
+from ursinanetworking import *
 import ursina
 import random
 

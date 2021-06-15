@@ -1,4 +1,4 @@
-from UrsinaNetworking import UrsinaNetworkingClient
+from ursinanetworking import *
 import threading
 
 Client = UrsinaNetworkingClient("localhost", 25565)
