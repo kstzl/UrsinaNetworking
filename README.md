@@ -100,4 +100,32 @@ from ursinanetworking import *
 
 Server = UrsinaNetworkingClient("localhost", 25565)
 Server.broadcast("HelloFromServer", "blabla")
+
+while True:
+    Server.process_net_events()
+```
+
+## Sending a file
+### Server :
+```python
+from ursinanetworking import *
+
+Server = UrsinaNetworkingServer("localhost", 25565)
+
+@Server.event
+def onClientConnected(Client):
+    Client.send_message("receiveFile", ursina_networking_encode_file("my_image.png"))
+```
+
+### Client :
+```python
+from ursinanetworking import *
+
+Client = UrsinaNetworkingClient("localhost", 25565)
+
+@Client.event
+def receiveFile(Content):
+    f = open("receveid_image.png", "wb")
+    f.write(ursina_networking_decompress_file(Content))
+    f.close()
 ```

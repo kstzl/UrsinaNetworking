@@ -84,9 +84,8 @@ class UrsinaNetworkingEvents():
                     for event_ in self.event_table[ events_ ]:
                         if Func in event_.__name__:
                             event_(*Args)
-            except:
-                ursina_networking_log("UrsinaNetworkingEvents", "process_net_events", f"Unable to correctly call '{Func}', maybe you're missing some arguments ?")
-                ursina_networking_log("UrsinaNetworkingEvents", "process_net_events", f"Argument(s) to have : { Args }")
+            except Exception as e:
+                ursina_networking_log("UrsinaNetworkingEvents", "process_net_events", f"Unable to correctly call '{Func}' : '{e}'")
         self.events.clear()
         self.lock.release()
 
