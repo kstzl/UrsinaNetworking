@@ -1,6 +1,11 @@
 <img src="https://raw.githubusercontent.com/kstzl/UrsinaNetworking/main/UrsinaNetworking_banner.png" width="500">
 
-A high level API for networking !
+A Event-Based, high level API for networking !
+
+## Installation
+```
+pip install ursinanetworking
+```
 
 ## Creating a server
 ```python
