@@ -64,7 +64,7 @@ class EasyUrsinaNetworkingServer():
 
         @self.server.event
         def onClientConnected(client):
-            easy_ursina_networking_log("EasyUrsinaNetworkingServer", "onClientConnected", f"Sending replicated variables to {client} ...")
+            easy_ursina_networking_log("EasyUrsinaNetworkingServer", "onClientConnected", f"Sending {len(self.replicated_variables)} replicated variable(s) to {client} ...")
             client.send_message("BUILTIN_EVENT_SEND_REPLICATED_VARIABLES", self.replicated_variables)
 
         @self.server.event
@@ -95,14 +95,23 @@ class EasyUrsinaNetworkingServer():
         self.server.broadcast("BUILTIN_EVENT_SEND_CREATE_REPLICATED_VARIABLE", self.replicated_variables[name])
 
     def remove_replicated_variable_by_name(self, name):
-        copy = self.replicated_variables[name]
-        self.replicated_variables.pop(name, None)
-        self.server.broadcast("BUILTIN_EVENT_SEND_REMOVE_REPLICATED_VARIABLE", copy)
+        if not name in self.replicated_variables:
+            easy_ursina_networking_log("EasyUrsinaNetworkingServer", "remove_replicated_variable_by_name", f"ERROR ! '{name}' does not exist !")
+            return
+        try:
+            copy = self.replicated_variables[name]
+            self.replicated_variables.pop(name, None)
+            self.server.broadcast("BUILTIN_EVENT_SEND_REMOVE_REPLICATED_VARIABLE", copy)
+        except Exception as e: easy_ursina_networking_log("EasyUrsinaNetworkingServer", "remove_replicated_variable_by_name", f"ERROR : {e}")
 
     def update_replicated_variable_by_name(self, variable_name, key, content):
-        self.replicated_variables[variable_name].content[key] = content
-        self.server.broadcast("BUILTIN_EVENT_SEND_UPDATE_REPLICATED_VARIABLE", self.replicated_variables[variable_name])
-        print(self.replicated_variables[variable_name])
+        if not variable_name in self.replicated_variables:
+            easy_ursina_networking_log("EasyUrsinaNetworkingServer", "update_replicated_variable_by_name", f"ERROR ! '{variable_name}' does not exist !")
+            return
+        try:
+            self.replicated_variables[variable_name].content[key] = content
+            self.server.broadcast("BUILTIN_EVENT_SEND_UPDATE_REPLICATED_VARIABLE", self.replicated_variables[variable_name])
+        except Exception as e: easy_ursina_networking_log("EasyUrsinaNetworkingServer", "update_replicated_variable_by_name", f"ERROR : {e}")
 
     def process_net_events(self):
         self.server.process_net_events()
