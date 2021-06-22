@@ -9,7 +9,7 @@
                   |___/                                                                              |___/
 By K3#4869
 
-Version 1.0.0
+Version 1.0.1
 """
 
 BUILTIN_EVENT_ON_REPLICATED_VARIABLE_CREATED = "onReplicatedVariableCreated"
@@ -83,6 +83,12 @@ class EasyUrsinaNetworkingServer():
             self.update_replicated_variable_by_name(datas[0], datas[1])
             self.events_manager.events.append((BUILTIN_EVENT_ON_REPLICATED_VARIABLE_UPDATED, datas[1]))
 
+    def get_replicated_variable_by_name(self, name):
+        return self.replicated_variables[name]
+
+    def get_replicated_variables(self):
+        return self.replicated_variables
+
     def create_replicated_variable(self, name, content):
         if name == "": name = f"unnamed_replicated_variable_{len(self.replicated_variables)}"
         self.replicated_variables[name] = (EasyUrsinaNetworkingReplicatedVariable(name, content))
@@ -93,9 +99,10 @@ class EasyUrsinaNetworkingServer():
         self.replicated_variables.pop(name, None)
         self.server.broadcast("BUILTIN_EVENT_SEND_REMOVE_REPLICATED_VARIABLE", copy)
 
-    def update_replicated_variable_by_name(self, variable_name, new_content):
-        self.replicated_variables[variable_name].content = new_content
+    def update_replicated_variable_by_name(self, variable_name, key, content):
+        self.replicated_variables[variable_name].content[key] = content
         self.server.broadcast("BUILTIN_EVENT_SEND_UPDATE_REPLICATED_VARIABLE", self.replicated_variables[variable_name])
+        print(self.replicated_variables[variable_name])
 
     def process_net_events(self):
         self.server.process_net_events()
@@ -130,15 +137,6 @@ class EasyUrsinaNetworkingClient():
         def BUILTIN_EVENT_SEND_UPDATE_REPLICATED_VARIABLE(updated_variable):
             self.replicated_variables[updated_variable.name].content = updated_variable.content
             self.events_manager.events.append((BUILTIN_EVENT_ON_REPLICATED_VARIABLE_UPDATED, [self.replicated_variables[updated_variable.name]]))
-
-    def create_replicated_variable(self, name, content):
-        self.client.send_message("BUILTIN_EVENT_REQUEST_CREATE_REPLICATED_VARIABLE", EasyUrsinaNetworkingReplicatedVariable(name, content))
-
-    def remove_replicated_variable_by_name(self, replicated_variable_name):
-        self.client.send_message("BUILTIN_EVENT_REQUEST_REMOVE_REPLICATED_VARIABLE_BY_NAME", replicated_variable_name)
-
-    def update_replicated_variable_by_name(self, replicated_variable_name, new_content):
-        self.client.send_message("BUILTIN_EVENT_REQUEST_UPDATE_REPLICATED_VARIABLE_BY_NAME", [replicated_variable_name, new_content])
 
     def process_net_events(self):
         self.client.process_net_events()
