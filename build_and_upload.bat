@@ -9,7 +9,7 @@ RMDIR "UrsinaNetworking.egg-info" /s /q
 echo [2 / 4] Pushing on github ...
 
 git add *
-git commit -m "changed Minecraft's example"
+git commit -m "script update"
 git push
 
 echo [3 / 4] Building the lib ...
