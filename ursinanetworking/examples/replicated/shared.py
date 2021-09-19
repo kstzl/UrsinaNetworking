@@ -1,5 +1,5 @@
 from ursina import *
-from replicated_2 import *
+from ursinanetworking import *
 
 class TestObject(Button, Replicator):
     def __init__(self, position=(-1,1,0)):
@@ -17,7 +17,7 @@ class TestObject(Button, Replicator):
 
         self.sfx = Audio("stone_dig.ogg", autoplay=False)
         Replicator.__init__(self)
-        self.replicate("position")
+        #self.replicate("position")
 
     def destroy_server(self):
         replicated_destroy(self)

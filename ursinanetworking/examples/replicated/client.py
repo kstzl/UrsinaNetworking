@@ -1,4 +1,3 @@
-from replicated_2 import *
 from ursinanetworking import *
 from ursina import *
 from ursina.prefabs.first_person_controller import FirstPersonController

@@ -1,6 +1,4 @@
-from replicated_2 import *
 from ursinanetworking import *
-import threading
 from shared import *
 
 Server = UrsinaNetworkingServer("localhost", 25565)
