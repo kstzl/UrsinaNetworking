@@ -39,7 +39,7 @@ class Replicator():
         self.network_handler = None
         self.need_destroy = False
         self.replicates = []
-        replicated_log(f"Object successfully replicated (id : {self.id})")
+        replicated_log(f"Object successfully replicated ! (id : {self.id})")
 
     def set_handler(self, new_handler):
         self.handler = new_handler
@@ -72,7 +72,9 @@ class ReplicatedSvEventsHandler:
         added = self.replicated_objects[object_instance.id] = {
             "server_instance" : object_instance,
             "id" : object_instance.id,
-            "class_name" : object_instance.class_name
+            "class_name" : object_instance.class_name,
+            "args" : args,
+            "kwargs" : kwargs
         }
         self.server.broadcast("replicated_cl_new_object", added)
         return object_instance
@@ -142,7 +144,7 @@ class ReplicatedClEventsHandler:
 
     def add_object_by_network_datas(self, object_data):
         id = object_data["id"]
-        object_instance = object_data["class_name"]()
+        object_instance = object_data["class_name"](*object_data["args"], **object_data["kwargs"])
         object_instance.handler = self.client
         object_instance.replicated_handler = self
         object_instance.id = id
