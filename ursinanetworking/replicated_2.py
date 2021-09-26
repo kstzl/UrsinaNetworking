@@ -17,14 +17,6 @@ def replicated_compact(caller, func, args, kwargs):
         "kwargs" : kwargs
     }
 
-def rpc_server(func, *args, **kwargs):
-    caller = inspect.currentframe().f_back.f_locals["self"]
-    caller.handler.send_message("replicated_sv_rpc", replicated_compact(caller, func, args, kwargs))
-
-def rpc_multicast(func, *args, **kwargs):
-    caller = inspect.currentframe().f_back.f_locals["self"]
-    caller.handler.broadcast("replicated_cl_rpc", replicated_compact(caller, func, args, kwargs))
-
 def replicated_destroy(object):
     object_id = object.id
     object.need_destroy = True
@@ -46,6 +38,12 @@ class Replicator():
 
     def replicate(self, arg):
         self.replicates.append(arg)
+
+    def rpc_server(self, func, *args, **kwargs):
+        self.handler.send_message("replicated_sv_rpc", replicated_compact(self, func, args, kwargs))
+
+    def rpc_multicast(self, func, *args, **kwargs):
+        self.handler.broadcast("replicated_cl_rpc", replicated_compact(self, func, args, kwargs))
 
 class ReplicatedSvEventsHandler:
     def __init__(self, server) -> None:
