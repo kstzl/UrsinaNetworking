@@ -31,6 +31,8 @@ class Replicator():
         self.network_handler = None
         self.need_destroy = False
         self.replicates = []
+        self.auto_datas = {}
+
         replicated_log(f"Object successfully replicated ! (id : {self.id})")
 
     def set_handler(self, new_handler):
@@ -113,6 +115,7 @@ class ReplicatedClEventsHandler:
     def __init__(self, replicated_context) -> None:
         self.client = replicated_context
         self.replicated_objects = {}
+        self.auto_datas = {}
         
         @self.client.event
         def replicated_cl_welcome(datas):
@@ -146,6 +149,7 @@ class ReplicatedClEventsHandler:
         object_instance.handler = self.client
         object_instance.replicated_handler = self
         object_instance.id = id
+        object_instance.auto_datas = self.auto_datas
         self.replicated_objects[id] = object_instance
 
     def replicated_update(self):
