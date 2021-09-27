@@ -3,6 +3,8 @@ import inspect
 import uuid
 import traceback
 
+from ursinanetworking.ursinanetworking import UrsinaNetworkingClient, UrsinaNetworkingServer
+
 def replicated_generate_id():
     return f"replicated_{str(uuid.uuid4())}"
 
@@ -37,6 +39,12 @@ class Replicator():
 
     def set_handler(self, new_handler):
         self.handler = new_handler
+
+        if type(self.handler) == UrsinaNetworkingServer:
+            if hasattr(self, "init_server"): self.init_server()
+            
+        if type(self.handler) == UrsinaNetworkingClient:
+            if hasattr(self, "init_client"): self.init_client()
 
     def replicate(self, arg):
         self.replicates.append(arg)
@@ -146,7 +154,7 @@ class ReplicatedClEventsHandler:
     def add_object_by_network_datas(self, object_data):
         id = object_data["id"]
         object_instance = object_data["class_name"](*object_data["args"], **object_data["kwargs"])
-        object_instance.handler = self.client
+        object_instance.set_handler(self.client)
         object_instance.replicated_handler = self
         object_instance.id = id
         object_instance.auto_datas = self.auto_datas
