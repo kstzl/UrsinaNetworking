@@ -22,7 +22,7 @@ HEADERSIZE = 10
 MESSAGE_LENGTH = 8
 BUFFERSIZE = 4096
 
-BUILTIN_EVENT_CONNECTION_ETABLISHED = "onConnectionEtablished"
+BUILTIN_EVENT_CONNECTION_ESTABLISHED = "onConnectionEstablished"
 BUILTIN_EVENT_CONNECTION_ERROR      = "onConnectionError"
 
 BUILTIN_EVENT_CLIENT_CONNECTED      = "onClientConnected"
@@ -293,7 +293,7 @@ class UrsinaNetworkingClient():
 
                 if self.connection_response == 0:
                     self.connected = True
-                    self.events_manager.push_event(BUILTIN_EVENT_CONNECTION_ETABLISHED)
+                    self.events_manager.push_event(BUILTIN_EVENT_CONNECTION_ESTABLISHED)
 
                     ursina_networking_log("UrsinaNetworkingClient", "handle", "Client connected successfully !")
 
