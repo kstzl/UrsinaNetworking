@@ -35,7 +35,7 @@ def onClientDisconnected(Client):
 ## Built-in Client Events
 ```python
 @Client.event
-def onConnectionEtablished():
+def onConnectionEstablished():
     print("I'm connected to the server !")
 
 @Client.event
