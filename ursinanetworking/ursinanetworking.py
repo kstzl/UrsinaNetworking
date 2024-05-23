@@ -8,15 +8,12 @@
                                                                                 __/ |
                                                                                |___/
 By K3#4869 and Squiggle#1385
-
-Version 1.0.5
 """
 
 import socket
 import threading
 import pickle
 import zlib
-import traceback
 
 HEADERSIZE = 10
 MESSAGE_LENGTH = 8
@@ -166,7 +163,7 @@ class UrsinaNetworkingConnectedClient():
 
     def send_message(self, Message_, Content_):
         try:
-            Encoded = ursina_networking_encode_message(Message_, Content_)
+            if (Encoded:=ursina_networking_encode_message(Message_, Content_))==b"": return False
             self.socket.sendall(Encoded)
             return True
         except Exception as e:
@@ -325,8 +322,8 @@ class UrsinaNetworkingClient():
     def send_message(self, Message_, Content_):
         try:
             if self.connected:
-                encoded_message = ursina_networking_encode_message(Message_, Content_)
-                self.client.sendall(encoded_message)
+                if (Encoded:=ursina_networking_encode_message(Message_, Content_))==b"": return False
+                self.client.sendall(Encoded)
                 return True
             else:
                 ursina_networking_log("UrsinaNetworkingClient", "send_message", f"WARNING : You are trying to send a message but the socket is not connected !")
